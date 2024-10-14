@@ -1,6 +1,7 @@
 package com.group.libraryapp.service.book
 
 import com.group.libraryapp.domain.book.Book
+import com.group.libraryapp.domain.book.JavaBook
 import com.group.libraryapp.domain.book.BookRepository
 import com.group.libraryapp.domain.user.User
 import com.group.libraryapp.domain.user.UserRepository
@@ -68,7 +69,8 @@ class BookServiceTest @Autowired constructor(
         }.apply {
             assertThat(message).isEqualTo("진작 대출되어 있는 책입니다")
         }
-
     }
+
+
 
 }
