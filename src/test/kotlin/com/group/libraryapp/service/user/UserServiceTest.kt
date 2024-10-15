@@ -6,6 +6,7 @@ import com.group.libraryapp.dto.user.request.UserCreateRequest
 import com.group.libraryapp.dto.user.request.UserUpdateRequest
 import org.assertj.core.api.AssertionsForInterfaceTypes.assertThat
 import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -22,6 +23,7 @@ class UserServiceTest @Autowired constructor(
     }
 
     @Test
+    @DisplayName("유저 저장 정상 동작")
     fun saveUserTest() {
         val request = UserCreateRequest("wook", 24)
         userService.saveUser(request)
@@ -32,6 +34,7 @@ class UserServiceTest @Autowired constructor(
     }
 
     @Test
+    @DisplayName("유저 저장 시 나이가 없어도 정상 동작")
     fun saveUserAgeNullTest() {
         val request = UserCreateRequest("yoo", null)
         userService.saveUser(request)
@@ -43,11 +46,12 @@ class UserServiceTest @Autowired constructor(
 
 
     @Test
+    @DisplayName("유저 조회 정상 동작")
     fun getUserTest() {
         userRepository.saveAll(listOf(
-                User("person1", 20),
-                User("person2", null),
-                User("person3", 34),
+            User("person1", 20),
+            User("person2", null),
+            User("person3", 34),
         ))
         val users = userService.findUsers()
         assertThat(users).hasSize(3)
@@ -58,9 +62,10 @@ class UserServiceTest @Autowired constructor(
     }
 
     @Test
+    @DisplayName("유저 업데이트 정상 동작")
     fun updateUserNameTest() {
         val savedUser = userRepository.save(User("A", null))
-        val request = UserUpdateRequest(savedUser.id, "B", )
+        val request = UserUpdateRequest(savedUser.id!!, "B", )
 
         userService.updateUserName(request)
 
@@ -69,6 +74,7 @@ class UserServiceTest @Autowired constructor(
     }
 
     @Test
+    @DisplayName("유저 삭제 정상 동작")
     fun deleteUserTest() {
         val savedUser = userRepository.save(User("A", null))
         assertThat(userRepository.findAll()).hasSize(1)

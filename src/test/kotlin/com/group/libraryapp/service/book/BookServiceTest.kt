@@ -1,14 +1,15 @@
 package com.group.libraryapp.service.book
 
 import com.group.libraryapp.domain.book.Book
-import com.group.libraryapp.domain.book.JavaBook
 import com.group.libraryapp.domain.book.BookRepository
+import com.group.libraryapp.domain.user.JavaUser
 import com.group.libraryapp.domain.user.User
 import com.group.libraryapp.domain.user.UserRepository
 import com.group.libraryapp.domain.user.loanhistory.UserLoanHistory
 import com.group.libraryapp.domain.user.loanhistory.UserLoanHistoryRepository
 import com.group.libraryapp.dto.book.request.BookLoanRequest
 import com.group.libraryapp.dto.book.request.BookRequest
+import com.group.libraryapp.dto.book.request.BookReturnRequest
 import org.assertj.core.api.AssertionsForInterfaceTypes.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.DisplayName
@@ -69,6 +70,20 @@ class BookServiceTest @Autowired constructor(
         }.apply {
             assertThat(message).isEqualTo("진작 대출되어 있는 책입니다")
         }
+    }
+
+    @Test
+    @DisplayName("책 반납 정상 동작")
+    fun returnBookTest() {
+        val savedUser = userRepository.save(User("wook", null))
+        userLoanHistoryRepository.save(UserLoanHistory(savedUser, "노인과 바다", false))
+        val request = BookReturnRequest("wook", "노인과 바다")
+
+        bookService.returnBook(request)
+
+        val results = userLoanHistoryRepository.findAll()
+        assertThat(results).hasSize(1)
+        assertThat(results[0].isReturn).isTrue()
     }
 
 
