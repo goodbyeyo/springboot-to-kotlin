@@ -26,7 +26,7 @@ class UserService(
     @Transactional(readOnly = true)
     fun findUsers(): List<UserResponse> {
         return userRepository.findAll()
-            .map { user -> UserResponse(user) }
+            .map { user -> UserResponse.of(user) }
         // .map(::UserResponse)    // user 를 UserResponse 생성자에 넣음
         // .map { UserResponse(it) }
     }
