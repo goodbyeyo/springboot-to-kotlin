@@ -2,6 +2,7 @@ package com.group.libraryapp.domain.user.loanhistory
 
 import com.group.libraryapp.domain.user.JavaUser
 import com.group.libraryapp.domain.user.User
+import com.group.libraryapp.domain.user.UserRepository
 import javax.persistence.Entity
 import javax.persistence.GeneratedValue
 import javax.persistence.GenerationType
@@ -16,13 +17,31 @@ class UserLoanHistory (
 
     val bookName: String,
 
-    var isReturn: Boolean,
+    var status: UserLoanStatus = UserLoanStatus.LOANED,
+
+    // var isReturn: Boolean = false,
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long? = null,
 ) {
     fun doReturn() {
-        this.isReturn = true
+        this.status = UserLoanStatus.RETURNED
+    }
+
+    companion object {
+        fun fixture(
+            user: User,
+            bookName: String = "죄와벌",
+            status: UserLoanStatus = UserLoanStatus.LOANED,
+            id: Long? = null,
+        ): UserLoanHistory {
+            return UserLoanHistory(
+                user = user,
+                bookName = bookName,
+                status = status,
+                id = id,
+            )
+        }
     }
 }

@@ -2,11 +2,13 @@ package com.group.libraryapp.service.book
 
 import com.group.libraryapp.domain.book.Book
 import com.group.libraryapp.domain.book.BookRepository
+import com.group.libraryapp.domain.book.BookType
 import com.group.libraryapp.domain.user.JavaUser
 import com.group.libraryapp.domain.user.User
 import com.group.libraryapp.domain.user.UserRepository
 import com.group.libraryapp.domain.user.loanhistory.UserLoanHistory
 import com.group.libraryapp.domain.user.loanhistory.UserLoanHistoryRepository
+import com.group.libraryapp.domain.user.loanhistory.UserLoanStatus
 import com.group.libraryapp.dto.book.request.BookLoanRequest
 import com.group.libraryapp.dto.book.request.BookRequest
 import com.group.libraryapp.dto.book.request.BookReturnRequest
@@ -28,7 +30,7 @@ class BookServiceTest @Autowired constructor(
     @Test
     @DisplayName("책 등록 테스트")
     fun saveBookTest() {
-        bookService.saveBook(BookRequest("죄와벌", "NOVEL"))
+        bookService.saveBook(BookRequest("죄와벌", BookType.SOCIETY))
         val books = bookRepository.findAll()
         assertThat(books).hasSize(1)
         assertThat(books[0].name).isEqualTo("죄와벌")
@@ -52,7 +54,7 @@ class BookServiceTest @Autowired constructor(
         val results = userLoanHistoryRepository.findAll()
         assertThat(results).hasSize(1)
         assertThat(results[0].bookName).isEqualTo("노인과 바다")
-        assertThat(results[0].isReturn).isFalse()
+        assertThat(results[0].status).isEqualTo(UserLoanStatus.LOANED)
         assertThat(results[0].user.id).isEqualTo(savedUser.id)
         assertThat(results[0].user.name).isEqualTo(savedUser.name)
         assertThat(results[0].user.age).isEqualTo(savedUser.age)
@@ -63,7 +65,7 @@ class BookServiceTest @Autowired constructor(
     fun loanBookFailTest() {
         bookRepository.save(Book.fixture("노인과 바다"))
         val savedUser = userRepository.save(User("상욱", null))
-        userLoanHistoryRepository.save(UserLoanHistory(savedUser, "노인과 바다", false))
+        userLoanHistoryRepository.save(UserLoanHistory.fixture(savedUser, "노인과 바다"))
 
         assertThrows<IllegalArgumentException>{
             bookService.loanBook(BookLoanRequest("다현", "노인과 바다"))
@@ -76,14 +78,14 @@ class BookServiceTest @Autowired constructor(
     @DisplayName("책 반납 정상 동작")
     fun returnBookTest() {
         val savedUser = userRepository.save(User("wook", null))
-        userLoanHistoryRepository.save(UserLoanHistory(savedUser, "노인과 바다", false))
+        userLoanHistoryRepository.save(UserLoanHistory.fixture(savedUser, "노인과 바다"))
         val request = BookReturnRequest("wook", "노인과 바다")
 
         bookService.returnBook(request)
 
         val results = userLoanHistoryRepository.findAll()
         assertThat(results).hasSize(1)
-        assertThat(results[0].isReturn).isTrue()
+        assertThat(results[0].status).isEqualTo(UserLoanStatus.RETURNED)
     }
 
 
