@@ -8,6 +8,7 @@ import javax.persistence.Id
 @Entity
 class Book (
     val name: String,
+    val type: String,
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,5 +21,18 @@ class Book (
         }
     }
 
-
+    // 정적 팩터리 메서드
+    companion object {
+        fun fixture(
+            name: String = "책 이름",
+            type: String = "COMPUTER",
+            id: Long? = null,
+        ): Book {
+            return Book(
+                name = name,
+                type = type,
+                id = id,
+            )
+        }
+    }
 }
