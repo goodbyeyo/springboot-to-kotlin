@@ -12,6 +12,7 @@ import com.group.libraryapp.domain.user.loanhistory.UserLoanStatus
 import com.group.libraryapp.dto.book.request.BookLoanRequest
 import com.group.libraryapp.dto.book.request.BookRequest
 import com.group.libraryapp.dto.book.request.BookReturnRequest
+import com.group.libraryapp.dto.book.response.BookStatResponse
 import org.assertj.core.api.AssertionsForInterfaceTypes.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.DisplayName
@@ -88,6 +89,45 @@ class BookServiceTest @Autowired constructor(
         assertThat(results[0].status).isEqualTo(UserLoanStatus.RETURNED)
     }
 
+    @Test
+    @DisplayName("대출중인 책 카운트를 구할수 있다")
+    fun countLoanedBookTest() {
+        val savedUser = userRepository.save(User("A"))
+        userLoanHistoryRepository.saveAll(
+            listOf(
+                UserLoanHistory.fixture(savedUser, "책1"),
+                UserLoanHistory.fixture(savedUser, "책2", UserLoanStatus.RETURNED),
+                UserLoanHistory.fixture(savedUser, "책3", UserLoanStatus.RETURNED),
+            )
+        )
 
+        val result = bookService.countLoanedBook()
 
+        assertThat(result).isEqualTo(1)
+    }
+
+    @Test
+    @DisplayName("분야별 책 카운트를 구할 수 있다")
+    fun getBookStatisticsTest() {
+        bookRepository.saveAll(listOf(
+            Book.fixture("A", BookType.SOCIETY),
+            Book.fixture("B", BookType.SOCIETY),
+            Book.fixture("C", BookType.COMPUTER)
+        ))
+
+        val results = bookService.getBookStatistics()
+
+        assertThat(results).hasSize(2)
+        assertCount(results, BookType.COMPUTER, 1)
+        assertCount(results, BookType.SOCIETY, 2)
+//        val computer = results.first { result -> result.type == BookType.COMPUTER }
+//        assertThat(computer.count).isEqualTo(1)
+//
+//        val society = results.first { result -> result.type == BookType.SOCIETY }
+//        assertThat(society.count).isEqualTo(2)
+    }
+
+    private fun assertCount(results: List<BookStatResponse>, type: BookType, count: Int) {
+        assertThat(results.first() { results -> results.type == type}.count).isEqualTo(count)
+    }
 }
