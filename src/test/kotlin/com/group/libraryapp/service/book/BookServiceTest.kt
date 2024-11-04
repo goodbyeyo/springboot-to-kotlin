@@ -13,6 +13,8 @@ import com.group.libraryapp.dto.book.request.BookLoanRequest
 import com.group.libraryapp.dto.book.request.BookRequest
 import com.group.libraryapp.dto.book.request.BookReturnRequest
 import com.group.libraryapp.dto.book.response.BookStatResponse
+import com.group.libraryapp.service.CleaningSpringBootTest
+import com.group.libraryapp.util.TxHelper
 import org.assertj.core.api.AssertionsForInterfaceTypes.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.DisplayName
@@ -27,21 +29,24 @@ class BookServiceTest @Autowired constructor(
     private val userRepository: UserRepository,
     private val userLoanHistoryRepository: UserLoanHistoryRepository,
     private val bookService: BookService,
-){
+    private val txHelper: TxHelper,
+) : CleaningSpringBootTest() {  // CleaningSpringBootTest 상속
     @Test
     @DisplayName("책 등록 테스트")
     fun saveBookTest() {
-        bookService.saveBook(BookRequest("죄와벌", BookType.SOCIETY))
-        val books = bookRepository.findAll()
-        assertThat(books).hasSize(1)
-        assertThat(books[0].name).isEqualTo("죄와벌")
+        txHelper.exec {
+            bookService.saveBook(BookRequest("죄와벌", BookType.SOCIETY))
+            val books = bookRepository.findAll()
+            assertThat(books).hasSize(1)
+            assertThat(books[0].name).isEqualTo("죄와벌")
+        }
     }
 
-    @AfterEach
-    fun clean() {
-        userRepository.deleteAll()
-        bookRepository.deleteAll()
-    }
+//    @AfterEach
+//    fun clean() {
+//        userRepository.deleteAll()
+//        bookRepository.deleteAll()
+//    }
 
     @Test
     @DisplayName("책 대여 정상 동작")
@@ -153,6 +158,6 @@ class BookServiceTest @Autowired constructor(
     }
 
     private fun assertCount(results: List<BookStatResponse>, type: BookType, count: Long) {
-        assertThat(results.first() { results -> results.type == type}.count).isEqualTo(count)
+        assertThat(results.first() { result -> result.type == type}.count).isEqualTo(count)
     }
 }
